@@ -12,6 +12,24 @@
   <!-- 폰트 + 아이콘 -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDkrRivEaTMetkWu8QKfjBM64dLETrkKwQ",
+      authDomain: "orangeblue-profile-comments.firebaseapp.com",
+      projectId: "orangeblue-profile-comments",
+      storageBucket: "orangeblue-profile-comments.firebasestorage.app",
+      messagingSenderId: "997333190720",
+      appId: "1:997333190720:web:162e5aaed3a705056a37a5"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const GUESTBOOK_COLLECTION = 'guestbook';
+    const ADMIN_UUID = 'OrangeBlue';
+  </script>
 
   <style>
     :root{
@@ -1025,6 +1043,120 @@
         font-size: 0.8rem;
       }
     }
+
+    /* ===== 방명록 ===== */
+    .guestbook-btn {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; width: 100%; padding: 18px 30px; margin-top: 12px;
+      background: linear-gradient(135deg, rgba(111,176,255,0.1), rgba(77,160,255,0.05));
+      border: 1px solid rgba(111,176,255,0.3); border-radius: 14px;
+      color: var(--accent); font-size: 1.1rem; font-weight: 600;
+      cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden;
+    }
+    .guestbook-btn:hover {
+      background: linear-gradient(135deg, rgba(111,176,255,0.2), rgba(77,160,255,0.1));
+      border-color: rgba(111,176,255,0.6); transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(111,176,255,0.3);
+    }
+    .guestbook-modal-content { max-width: 700px; width: 90%; max-height: 85vh; }
+    .gb-input-area {
+      background: rgba(255,255,255,0.03); border-radius: 12px;
+      padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.06);
+    }
+    .gb-input { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05); color: #e6eef8; font-size: 0.95rem;
+      font-family: inherit; outline: none; transition: border-color 0.2s; box-sizing: border-box;
+    }
+    .gb-input:focus { border-color: var(--accent); }
+    .gb-input-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+    .gb-nick { flex: 1; }
+    .gb-submit-btn {
+      padding: 10px 22px; background: linear-gradient(135deg, #6fb0ff, #4da0ff);
+      border: none; border-radius: 8px; color: white; font-weight: 700;
+      font-size: 0.95rem; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .gb-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(111,176,255,0.4); }
+    .gb-textarea { resize: vertical; min-height: 80px; margin-bottom: 0; }
+    .gb-list { display: flex; flex-direction: column; gap: 14px; }
+    .gb-comment {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px; padding: 16px 18px; transition: border-color 0.2s;
+    }
+    .gb-comment:hover { border-color: rgba(111,176,255,0.2); }
+    .gb-comment.reply {
+      margin-left: 30px; border-left: 3px solid rgba(111,176,255,0.3);
+      background: rgba(111,176,255,0.03);
+    }
+    .gb-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    .gb-nick-display { font-weight: 700; color: #e6eef8; font-size: 0.95rem; }
+    .gb-hash { font-size: 0.78rem; color: var(--accent); font-weight: 600; }
+    .gb-hash.admin { color: #ff4d4d; text-shadow: 0 0 8px rgba(255,77,77,0.5); }
+    .gb-time { font-size: 0.78rem; color: var(--muted); margin-left: auto; }
+    .gb-content { color: #ccd6e0; font-size: 0.93rem; line-height: 1.6; white-space: pre-wrap; }
+    .gb-actions { margin-top: 10px; display: flex; gap: 8px; }
+    .gb-reply-btn, .gb-del-btn {
+      background: none; border: none; font-size: 0.82rem;
+      cursor: pointer; padding: 3px 8px; border-radius: 6px; transition: all 0.2s;
+    }
+    .gb-reply-btn { color: var(--accent); }
+    .gb-reply-btn:hover { background: rgba(111,176,255,0.1); }
+    .gb-del-btn { color: #ff6b6b; }
+    .gb-del-btn:hover { background: rgba(255,107,107,0.1); }
+    .gb-reply-form {
+      display: none; margin-top: 12px; padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .gb-empty { text-align: center; color: var(--muted); padding: 40px 0; font-size: 0.95rem; }
+    .gb-admin-badge {
+      display: inline-block; background: linear-gradient(135deg, #ff4d4d, #cc0000);
+      color: white; font-size: 0.7rem; font-weight: 700; padding: 2px 8px;
+      border-radius: 10px; letter-spacing: 0.5px;
+    }
+    .gb-pw-input {
+      width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05); color: #e6eef8; font-size: 0.95rem;
+      font-family: inherit; outline: none; margin-bottom: 10px; box-sizing: border-box;
+    }
+
+    /* 히어로 배너 방명록 버튼 */
+    .hero-gb-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: linear-gradient(135deg, #0055ff, #0099ff);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0,100,255,0.35);
+    }
+    .hero-gb-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,100,255,0.5);
+    }
+    /* 모바일에서는 히어로 소셜 아래 가운데 */
+    @media (max-width: 768px) {
+      .hero-gb-btn {
+        position: static;
+        margin: 16px auto 0;
+        display: flex;
+        justify-content: center;
+      }
+      .hero-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1068,6 +1200,10 @@
   <main class="main-content">
     <!-- 히어로 배너 -->
     <section class="hero-banner">
+      <button class="hero-gb-btn" onclick="openGuestbookModal()">
+        <i class="fas fa-book-open"></i>
+        방명록 열기
+      </button>
       <div class="hero-content">
         <h1 class="hero-title">OrangeBlue</h1>
         <p class="hero-subtitle">디스코드, 그 이상의 연결을 추구하다</p>
@@ -1199,6 +1335,28 @@
     </section>
   </main>
 
+
+  <!-- 방명록 모달 -->
+  <div id="guestbookModal" class="modal">
+    <div class="modal-content guestbook-modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">📖 방명록</h3>
+        <button class="close-btn" onclick="closeGuestbookModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="gb-input-area">
+        <div class="gb-input-row" id="gb-nick-row">
+          <input type="text" id="gb-nick" class="gb-input gb-nick" placeholder="닉네임 (비워두면 익명)">
+        </div>
+        <textarea id="gb-content" class="gb-input gb-textarea" placeholder="방명록을 남겨주세요 :)"></textarea>
+        <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+          <button class="gb-submit-btn" onclick="gbSubmit()">등록</button>
+        </div>
+      </div>
+      <div id="gb-list" class="gb-list">
+        <p class="gb-empty">로딩 중...</p>
+      </div>
+    </div>
+  </div>
   <!-- 게임 프로필 모달 -->
   <div id="gameProfileModal" class="modal">
     <div class="modal-content game-profile-modal-content">
@@ -1449,6 +1607,232 @@
         console.debug('Counter request failed');
       });
     })();
+  </script>
+    <!-- 방명록 스크립트 -->
+  <script>
+    const auth = firebase.auth();
+
+    // ── UUID ─────────────────────────────────────────────
+    function gbGetUUID() {
+      let u = localStorage.getItem('gb_uuid');
+      if (!u) {
+        u = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+          const r = Math.random()*16|0, v = c==='x'?r:(r&0x3|0x8);
+          return v.toString(16);
+        });
+        localStorage.setItem('gb_uuid', u);
+      }
+      return u;
+    }
+    function gbHash(str) {
+      let h = 0;
+      for (let i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h|=0;}
+      return '#'+Math.abs(h).toString(16).substring(0,4).toUpperCase();
+    }
+
+    // ── 관리자 로그인 상태 감지 → 삭제 버튼 표시 제어 ──────
+    auth.onAuthStateChanged(user => {
+      window.gbIsAdmin = !!user;
+      // 현재 열려 있으면 목록 새로고침 (삭제 버튼 반영)
+      const m = document.getElementById('guestbookModal');
+      if (m && m.classList.contains('show')) gbLoad();
+    });
+
+    // ── 관리자 로그인 팝업 ───────────────────────────────
+    async function gbAdminLogin() {
+      const email = prompt('관리자 이메일:');
+      if (!email) return;
+      const pw = prompt('비밀번호:');
+      if (!pw) return;
+      try {
+        await auth.signInWithEmailAndPassword(email, pw);
+        alert('관리자로 로그인되었습니다.');
+        gbLoad();
+      } catch(e) {
+        alert('로그인 실패: 이메일 또는 비밀번호를 확인하세요.');
+      }
+    }
+
+    async function gbAdminLogout() {
+      await auth.signOut();
+      alert('로그아웃되었습니다.');
+      gbLoad();
+    }
+
+    // ── 모달 열기/닫기 ────────────────────────────────────
+    function openGuestbookModal() {
+      const m = document.getElementById('guestbookModal');
+      m.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+      setTimeout(()=>m.classList.add('show'),10);
+      gbLoad();
+    }
+    function closeGuestbookModal() {
+      const m = document.getElementById('guestbookModal');
+      m.classList.remove('show');
+      setTimeout(()=>{ m.style.display='none'; document.body.style.overflow=''; }, 300);
+    }
+
+    // ── 등록 ─────────────────────────────────────────────
+    const WEBHOOK_WORKER_URL = 'https://guestbook-webhook.snackcandy105.workers.dev/';
+
+    async function gbSubmit(parentId = null, nickEl = null, contentEl = null, parentNickname = null) {
+      const content = (contentEl || document.getElementById('gb-content')).value.trim();
+      if (!content) return alert('내용을 입력해주세요.');
+
+      const user = auth.currentUser;
+      const userUUID = user ? 'OrangeBlue' : gbGetUUID();
+      const nickVal = user ? 'OrangeBlue' : (nickEl || document.getElementById('gb-nick')).value.trim();
+      const finalNick = nickVal === '' ? '익명' : nickVal;
+
+      const data = {
+        nickname: finalNick,
+        content,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        userUUID,
+        ...(parentId ? {parentId} : {})
+      };
+
+      try {
+        await db.collection(GUESTBOOK_COLLECTION).add(data);
+        if (!parentId) {
+          document.getElementById('gb-nick').value = '';
+          document.getElementById('gb-content').value = '';
+        }
+
+        // 디스코드 웹훅 알림 (조용히 실패 처리)
+        fetch(WEBHOOK_WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nickname: finalNick,
+            content,
+            isReply: !!parentId,
+            parentNickname: parentNickname || null
+          })
+        }).catch(() => {});
+
+        gbLoad();
+      } catch(e) {
+        alert('등록에 실패했습니다.');
+        console.error(e);
+      }
+    }
+
+    // ── 삭제 (Firebase 로그인된 관리자만) ────────────────
+    async function gbDelete(docId) {
+      if (!auth.currentUser) return alert('삭제 권한이 없습니다.');
+      if (!confirm('정말 삭제할까요?')) return;
+      try {
+        await db.collection(GUESTBOOK_COLLECTION).doc(docId).delete();
+        gbLoad();
+      } catch(e) {
+        alert('삭제 실패');
+        console.error(e);
+      }
+    }
+
+    // ── 불러오기 & 렌더링 ────────────────────────────────
+    async function gbLoad() {
+      const list = document.getElementById('gb-list');
+      if (!list) return;
+      list.innerHTML = '<p class="gb-empty">로딩 중...</p>';
+      try {
+        const snap = await db.collection(GUESTBOOK_COLLECTION).orderBy('timestamp','asc').get();
+        const comments = [], repliesMap = {};
+        snap.forEach(doc => {
+          const d = {...doc.data(), id: doc.id};
+          if (d.parentId) { (repliesMap[d.parentId]||(repliesMap[d.parentId]=[])).push(d); }
+          else comments.push(d);
+        });
+        list.innerHTML = '';
+        // 관리자 로그인 시 닉네임 입력칸 숨기기
+        const nickRow = document.getElementById('gb-nick-row');
+        if (nickRow) nickRow.style.display = auth.currentUser ? 'none' : 'flex';
+
+        // 관리자 상태 표시 바
+        const adminBar = document.createElement('div');
+        adminBar.style.cssText = 'display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-bottom:14px; font-size:0.82rem;';
+        if (auth.currentUser) {
+          adminBar.innerHTML = `
+            <span style="color:#6fb0ff;">🔐 관리자 모드</span>
+            <button onclick="gbAdminLogout()" style="background:rgba(255,107,107,0.15); border:1px solid rgba(255,107,107,0.3); color:#ff6b6b; border-radius:6px; padding:4px 10px; cursor:pointer; font-size:0.8rem;">로그아웃</button>
+          `;
+        } else {
+          adminBar.innerHTML = `
+            <button onclick="gbAdminLogin()" style="background:rgba(111,176,255,0.1); border:1px solid rgba(111,176,255,0.2); color:var(--accent); border-radius:6px; padding:4px 10px; cursor:pointer; font-size:0.8rem;">🔑 관리자 로그인</button>
+          `;
+        }
+        list.appendChild(adminBar);
+
+        if (!comments.length) {
+          list.insertAdjacentHTML('beforeend', '<p class="gb-empty">아직 방명록이 없어요. 첫 번째로 남겨보세요!</p>');
+          return;
+        }
+        comments.reverse().forEach(c => gbRender(c, list, repliesMap, 0));
+      } catch(e) {
+        list.innerHTML = '<p class="gb-empty" style="color:#ff6b6b;">불러오기 실패</p>';
+        console.error(e);
+      }
+    }
+
+    function gbRender(c, container, repliesMap, depth) {
+      const isAdmin = c.userUUID === 'OrangeBlue';
+      const hash = isAdmin ? 'ADMIN' : (c.userUUID ? gbHash(c.userUUID) : '#0000');
+      const time = c.timestamp
+        ? c.timestamp.toDate().toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false})
+        : '처리 중';
+      const replyFormId = 'gbrf-'+c.id;
+      const isLoggedIn = !!auth.currentUser;
+
+      const div = document.createElement('div');
+      div.className = 'gb-comment' + (depth > 0 ? ' reply' : '');
+      div.innerHTML = `
+        <div class="gb-meta">
+          ${isAdmin
+            ? `<span class="gb-admin-badge">✦ OrangeBlue</span>`
+            : `<span class="gb-nick-display">${c.nickname}</span>`}
+          <span class="gb-hash ${isAdmin?'admin':''}">${hash}</span>
+          <span class="gb-time">${time}</span>
+        </div>
+        <div class="gb-content">${c.content.replace(/</g,'&lt;')}</div>
+        <div class="gb-actions">
+          ${depth === 0 ? `<button class="gb-reply-btn" onclick="document.getElementById('${replyFormId}').style.display='block'">↩ 답글</button>` : ''}
+          ${isLoggedIn ? `<button class="gb-del-btn" onclick="gbDelete('${c.id}')">🗑 삭제</button>` : ''}
+        </div>
+        ${depth === 0 ? `
+        <div class="gb-reply-form" id="${replyFormId}">
+          ${isLoggedIn ? '' : `
+          <div class="gb-input-row" style="margin-bottom:8px;">
+            <input type="text" id="rn-${c.id}" class="gb-input gb-nick" placeholder="닉네임 (비워두면 익명)">
+          </div>`}
+          <textarea id="rc-${c.id}" class="gb-input gb-textarea" style="min-height:60px;" placeholder="답글을 입력하세요"></textarea>
+          <div style="display:flex; justify-content:flex-end; margin-top:8px; gap:8px;">
+            <button class="gb-reply-btn" onclick="document.getElementById('${replyFormId}').style.display='none'">취소</button>
+            <button class="gb-submit-btn" style="padding:8px 16px; font-size:0.85rem;"
+              onclick="gbSubmit('${c.id}', document.getElementById('rn-${c.id}') || null, document.getElementById('rc-${c.id}'), '${c.nickname.replace(/'/g,"\\'")}')">
+              등록
+            </button>
+          </div>
+        </div>` : ''}
+      `;
+      container.appendChild(div);
+      (repliesMap[c.id]||[]).forEach(r => gbRender(r, container, repliesMap, depth+1));
+    }
+
+    // ESC로 방명록 모달 닫기
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const m = document.getElementById('guestbookModal');
+        if (m && m.classList.contains('show')) closeGuestbookModal();
+      }
+    });
+
+    // 방명록 모달 외부 클릭 닫기
+    window.addEventListener('click', function(e) {
+      const m = document.getElementById('guestbookModal');
+      if (e.target === m) closeGuestbookModal();
+    });
   </script>
 </body>
 </body>
