@@ -1146,10 +1146,14 @@
     /* 모바일에서는 히어로 소셜 아래 가운데 */
     @media (max-width: 768px) {
       .hero-gb-btn {
-        position: static;
-        margin: 16px auto 0;
-        display: flex;
-        justify-content: center;
+        position: absolute;
+        top: auto;
+        left: 50%;
+        bottom: 30px;
+        transform: translateX(-50%);
+      }
+      .hero-gb-btn:hover {
+        transform: translateX(-50%) translateY(-2px);
       }
       .hero-content {
         display: flex;
