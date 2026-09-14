@@ -9,972 +9,216 @@
   <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
   <link rel="manifest" href="favicon/site.webmanifest">
 
-  <!-- 폰트 + 아이콘 -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+  <!-- 폰트: 제목은 세리프(Noto Serif KR), 본문은 Pretendard -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
+  <!-- 저장된 테마를 렌더링 전에 먼저 적용 (깜빡임 방지) -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('ob_theme');
+        document.documentElement.setAttribute('data-theme', (saved === 'dark' || saved === 'light') ? saved : 'light');
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+
   <style>
-    :root{
-      --bg:#121212;
-      --paper:#212121;
-      --muted:#9aa9b7;
-      --accent:#6fb0ff;
-      --accent-2:#4da0ff;
-      --card-shadow: 0 12px 30px rgba(0,0,0,0.6);
-      --round:14px;
-      --maxw:1200px;
-      --gap:18px;
+    /* ===================== 컬러 토큰 (index.html과 동일) ===================== */
+    :root,
+    :root[data-theme="light"] {
+      --bg: #faf9f6;
+      --surface: #ffffff;
+      --text: #1c1b19;
+      --muted: #6f6b63;
+      --border: #e4e1d9;
+      --accent: #3d5a73;
+      --accent-soft: rgba(61,90,115,0.08);
+      --danger: #b3432c;
+      --shadow: 0 1px 2px rgba(28,27,25,0.04);
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #16150f;
+      --surface: #1d1c17;
+      --text: #ece8e0;
+      --muted: #a49d8e;
+      --border: #322f27;
+      --accent: #8fb0cc;
+      --accent-soft: rgba(143,176,204,0.1);
+      --danger: #e0836a;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3);
     }
 
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0;
-      font-family: 'Poppins', 'Noto Sans KR', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      background:var(--bg);
-      color:#e6eef8;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      line-height:1.5;
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height:1.65;
       overflow-x: hidden;
+      transition: background 0.2s ease, color 0.2s ease;
     }
 
-    /* 사이드바 스타일 */
+    h1, h2, h3, h4 {
+      font-family: 'Noto Serif KR', serif;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    a { color: inherit; }
+
+    /* ===================== 사이드바 ===================== */
     .sidebar {
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 300px;
-      height: 100vh;
-      background: linear-gradient(180deg, rgba(15,15,15,0.98), rgba(25,25,25,0.95));
-      backdrop-filter: blur(20px);
-      border-right: 1px solid rgba(255,255,255,0.05);
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      padding: 30px 25px;
-      box-shadow: 4px 0 30px rgba(0,0,0,0.7);
+      position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+      background: var(--bg); border-right: 1px solid var(--border);
+      z-index: 1000; display: flex; flex-direction: column; padding: 40px 28px;
     }
 
-    /* 프로필 섹션 */
-    .profile-section {
-      text-align: center;
-      margin-bottom: 40px;
-    }
+    .profile-section { text-align: left; margin-bottom: 36px; }
 
     .profile-img {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      border: 4px solid rgba(111,176,255,0.3);
-      box-shadow: 0 10px 30px rgba(111,176,255,0.2);
-      object-fit: cover;
-      margin-bottom: 20px;
-      transition: all 0.3s ease;
+      width: 76px; height: 76px; border-radius: 50%;
+      object-fit: cover; margin-bottom: 18px; border: 1px solid var(--border);
     }
 
-    .profile-img:hover {
-      transform: scale(1.05);
-      border-color: var(--accent);
-      box-shadow: 0 15px 40px rgba(111,176,255,0.4);
-    }
-
-    .profile-name {
-      font-size: 24px;
-      color: var(--accent);
-      margin: 0 0 8px 0;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
+    .profile-name { font-size: 21px; color: var(--text); margin: 0 0 8px 0; font-weight: 700; }
 
     .profile-title {
-      color: var(--muted);
-      font-size: 13px;
-      margin: 0;
-      line-height: 1.4;
+      color: var(--muted); font-size: 13px; margin: 0; line-height: 1.6;
+      font-family: 'Pretendard Variable', Pretendard, sans-serif;
     }
 
-    /* 네비게이션 */
-    .nav-menu {
-      flex: 1;
-      margin-top: 20px;
-    }
+    .nav-menu { flex: 1; margin-top: 8px; display: flex; flex-direction: column; gap: 2px; }
 
     .nav-item {
-      display: flex;
-      align-items: center;
-      padding: 15px 20px;
-      margin-bottom: 8px;
-      border-radius: 12px;
-      color: var(--muted);
-      text-decoration: none;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
+      display: flex; align-items: center; padding: 10px 10px; border-radius: 6px;
+      color: var(--muted); text-decoration: none; font-size: 14px;
+      transition: color 0.15s ease, background 0.15s ease;
     }
 
-    .nav-item:before {
-      content: '';
-      position: absolute;
-      left: -100%;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(111,176,255,0.1), transparent);
-      transition: left 0.5s ease;
-    }
+    .nav-item:hover { background: var(--accent-soft); color: var(--accent); }
+    .nav-item.active { color: var(--text); font-weight: 600; }
+    .nav-item.active i { color: var(--accent); }
+    .nav-item i { margin-right: 10px; width: 16px; text-align: center; font-size: 13px; }
 
-    .nav-item:hover:before {
-      left: 100%;
-    }
-
-    .nav-item:hover {
-      background: rgba(111,176,255,0.08);
-      color: var(--accent);
-      transform: translateX(5px);
-    }
-
-    .nav-item.active {
-      background: linear-gradient(135deg, rgba(111,176,255,0.15), rgba(111,176,255,0.08));
-      color: var(--accent);
-      box-shadow: 0 5px 15px rgba(111,176,255,0.2);
-    }
-
-    .nav-item i {
-      margin-right: 12px;
-      width: 20px;
-      text-align: center;
-    }
-
-    /* 소셜 아이콘 */
     .sidebar-socials {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-top: auto;
-      padding-top: 30px;
+      display: flex; gap: 6px; margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border);
     }
 
     .sidebar-socials a {
-      width: 45px;
-      height: 45px;
+      width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+      border-radius: 6px; color: var(--muted); text-decoration: none !important;
+      transition: color 0.15s ease, background 0.15s ease; font-size: 14px;
+    }
+
+    .sidebar-socials a:hover { color: var(--accent); background: var(--accent-soft); }
+
+    /* ===================== 메인 컨텐츠 ===================== */
+    .main-content { margin-left: 260px; min-height: 100vh; background: var(--bg); }
+
+    .page-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 24px; padding: 64px 48px 40px; max-width: 800px; margin: 0 auto;
+    }
+
+    .page-header-text h1 { font-size: 2.2rem; margin: 0 0 10px 0; color: var(--text); }
+    .page-header-text p { color: var(--muted); font-size: 1rem; margin: 0; max-width: 46ch; }
+
+    .page-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; padding-top: 4px; }
+
+    .icon-btn {
+      width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+      border-radius: 8px; border: 1px solid var(--border); background: var(--surface);
+      color: var(--muted); cursor: pointer; font-size: 14px;
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+    .icon-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+    .theme-toggle .fa-sun { display: none; }
+    :root[data-theme="dark"] .theme-toggle .fa-sun { display: inline; }
+    :root[data-theme="dark"] .theme-toggle .fa-moon { display: none; }
+
+    .content-section { padding: 0 48px 80px; max-width: 800px; margin: 0 auto; }
+
+    .section-title { font-size: 1.3rem; color: var(--text); margin: 0 0 20px 0; }
+
+    /* ===================== D-Day ===================== */
+    .dday-section { margin-bottom: 56px; }
+
+    .dday-row {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255,255,255,0.03);
-      border-radius: 50%;
-      color: var(--muted);
-      text-decoration: none;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
     }
 
-    .sidebar-socials a:before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      background: radial-gradient(circle, rgba(111,176,255,0.2), transparent);
-      transition: all 0.4s ease;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-    }
-
-    .sidebar-socials a:hover:before {
-      width: 100px;
-      height: 100px;
-    }
-
-    .sidebar-socials a:hover {
-      color: var(--accent);
-      transform: translateY(-3px);
-    }
-
-    /* 메인 컨텐츠 */
-    .main-content {
-      margin-left: 300px;
-      min-height: 100vh;
-      background: var(--bg);
-      position: relative;
-    }
-
-    /* 히어로 배너 */
-    .hero-banner {
-      height: 400px;
-      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-banner:before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M 50 0 L 0 0 0 50" fill="none" stroke="%23ffffff" stroke-width="0.5" opacity="0.1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
-      opacity: 0.3;
-    }
-
-    .hero-content {
+    .dday-block {
+      flex: 1;
+      padding: 24px 16px;
       text-align: center;
-      z-index: 2;
-      position: relative;
+      border-left: 1px solid var(--border);
     }
+    .dday-block:first-child { border-left: none; }
 
-    .hero-socials {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-top: 30px;
-    }
-
-    .hero-socials a {
-      width: 55px;
-      height: 55px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #6fb0ff, #4da0ff);
-      border-radius: 50%;
-      color: white;
-      font-size: 24px;
-      text-decoration: none;
-      transition: all 0.3s ease;
-      box-shadow: 0 8px 25px rgba(111,176,255,0.3);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-socials a:before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      background: radial-gradient(circle, rgba(255,255,255,0.3), transparent);
-      transition: all 0.4s ease;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-    }
-
-    .hero-socials a:hover:before {
-      width: 80px;
-      height: 80px;
-    }
-
-    .hero-socials a:hover {
-      transform: translateY(-5px) scale(1.05);
-      box-shadow: 0 15px 40px rgba(111,176,255,0.5);
-      background: linear-gradient(135deg, #7fc0ff, #5db0ff);
-    }
-
-    .hero-title {
-      font-size: 3rem;
-      font-weight: 700;
-      margin: 0;
-      background: linear-gradient(135deg, var(--accent), #4da0ff, #3aa0ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: glow 2s ease-in-out infinite alternate;
-    }
-
-    @keyframes glow {
-      from { filter: drop-shadow(0 0 10px rgba(111,176,255,0.3)); }
-      to { filter: drop-shadow(0 0 20px rgba(111,176,255,0.6)); }
-    }
-
-    .hero-subtitle {
-      font-size: 1.2rem;
-      color: var(--muted);
-      margin-top: 15px;
-      max-width: 600px;
-    }
-
-    /* 컨텐츠 섹션 */
-    .content-section {
-      padding: 60px 40px;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .section-title {
-      text-align: center;
-      font-size: 2rem;
-      color: var(--accent);
-      margin-bottom: 40px;
-      position: relative;
-    }
-
-    .section-title:after {
-      content: '';
-      position: absolute;
-      bottom: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60px;
-      height: 3px;
-      background: linear-gradient(90deg, var(--accent), #4da0ff);
-      border-radius: 2px;
-    }
-
-
-    .dday-section {
-      margin-bottom: 80px;
-    }
-
-    .dday-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 25px;
-      margin: 40px 0;
-    }
-
-    .dday-card {
-      background: linear-gradient(135deg, rgba(25,25,25,0.95), rgba(35,35,35,0.9));
-      border-radius: 16px;
-      padding: 30px;
-      text-align: center;
-      border: 1px solid rgba(255,255,255,0.05);
-      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .dday-card:before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-      transition: left 0.8s ease;
-    }
-
-    .dday-card:hover:before {
-      left: 100%;
-    }
-
-    .dday-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 50px rgba(0,0,0,0.8);
-    }
-
-    .dday-icon {
-      font-size: 2.5rem;
-      color: var(--accent);
-      margin-bottom: 15px;
-    }
-
-    .dday-title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #e6eef8;
-      margin-bottom: 10px;
-    }
-
+    .dday-icon { font-size: 1.1rem; color: var(--accent); margin-bottom: 10px; }
+    .dday-title { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
     .dday-counter {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 5px;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 1.6rem; font-weight: 700; color: var(--text); margin-bottom: 4px;
     }
+    .dday-date { font-size: 12px; color: var(--muted); }
 
-    .dday-date {
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
+    /* ===================== 웹사이트 ===================== */
+    .websites-section { margin-bottom: 56px; }
 
-    /* 제품 스펙 섹션 */
-    .specs-section {
-      margin-bottom: 80px;
+    .website-item {
+      border-top: 1px solid var(--border);
+      padding: 22px 0;
     }
+    .website-item:last-child { border-bottom: 1px solid var(--border); }
 
-    .product-card {
-      background: linear-gradient(135deg, rgba(20,20,20,0.95), rgba(30,30,30,0.9));
-      border-radius: 16px;
-      padding: 0;
-      border: 1px solid rgba(255,255,255,0.05);
-      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-      margin-bottom: 30px;
-      overflow: hidden;
-      transition: all 0.3s ease;
-    }
-
-    .product-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 15px 50px rgba(0,0,0,0.8);
-    }
-
-    .product-content {
-      display: grid;
-      grid-template-columns: 300px 1fr;
-      align-items: center;
-      gap: 0;
-    }
-
-    .product-image {
-      height: 250px;
-      background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-      padding: 20px;
-    }
-
-    .product-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      transition: transform 0.3s ease;
-      border-radius: 8px;
-    }
-
-    .product-image:hover img {
-      transform: scale(1.05);
-    }
-
-    .product-placeholder {
-      color: rgba(111,176,255,0.3);
-      font-size: 3rem;
-    }
-
-    .product-specs {
-      padding: 30px;
-    }
-
-    .product-name {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .spec-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-    }
-
-    .spec-item {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .spec-label {
-      font-size: 0.85rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-weight: 600;
-    }
-
-    .spec-value {
-      font-size: 1rem;
-      color: #e6eef8;
-      font-weight: 500;
-    }
-
-    /* 자격증 모달 */
-    .cert-link {
-      color: var(--accent);
-      cursor: pointer;
-      text-decoration: underline;
-      transition: color 0.3s ease;
-    }
-
-    .cert-link:hover {
-      color: #7fc0ff;
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 2000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.8);
-      backdrop-filter: blur(5px);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .modal.show {
-      opacity: 1;
-    }
-
-    .modal-content {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0.8);
-      background: linear-gradient(135deg, rgba(30,30,30,0.95), rgba(40,40,40,0.9));
-      border-radius: 16px;
-      padding: 30px;
-      max-width: 600px;
-      max-height: 80vh;
-      overflow: auto;
-      border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 25px 80px rgba(0,0,0,0.9);
-      transition: transform 0.3s ease;
-    }
-
-    .modal.show .modal-content {
-      transform: translate(-50%, -50%) scale(1);
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .modal-title {
-      font-size: 1.3rem;
-      color: var(--accent);
-      font-weight: 600;
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 1.5rem;
-      cursor: pointer;
-      padding: 5px;
-      border-radius: 50%;
-      transition: all 0.3s ease;
-    }
-
-    .close-btn:hover {
-      background: rgba(255,255,255,0.1);
-      color: #e6eef8;
-    }
-
-    .cert-image {
-      width: 100%;
-      height: 400px;
-      background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 15px;
-      border: 2px dashed rgba(111,176,255,0.3);
-      overflow: hidden;
-      position: relative;
-    }
-
-    .cert-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      border-radius: 8px;
-    }
-
-    .cert-placeholder {
-      color: rgba(111,176,255,0.4);
-      font-size: 4rem;
-      text-align: center;
-    }
-
-    .cert-info {
-      color: var(--muted);
-      font-size: 0.9rem;
-      text-align: center;
-    }
-
-    /* 웹사이트 섹션 */
-    .websites-section {
-      margin-bottom: 80px;
-    }
-
-    .website-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 25px;
-      margin: 40px 0;
-    }
-
-    .website-card {
-      background: linear-gradient(135deg, rgba(25,25,25,0.95), rgba(35,35,35,0.9));
-      border-radius: 16px;
-      padding: 25px;
-      border: 1px solid rgba(255,255,255,0.05);
-      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .website-card:before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-      transition: left 0.8s ease;
-    }
-
-    .website-card:hover:before {
-      left: 100%;
-    }
-
-    .website-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 50px rgba(0,0,0,0.8);
-    }
-
-    .website-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 15px;
-    }
-
-    .website-icon {
-      width: 45px;
-      height: 45px;
-      background: linear-gradient(135deg, var(--accent), #4da0ff);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 1.2rem;
-    }
-
-    .website-title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #e6eef8;
-      margin: 0;
-    }
+    .website-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .website-icon { color: var(--accent); font-size: 1rem; }
+    .website-title { font-size: 1rem; font-weight: 700; color: var(--text); margin: 0; }
 
     .website-description {
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.5;
-      margin-bottom: 20px;
+      color: var(--muted); font-size: 0.9rem; line-height: 1.6; margin: 0 0 12px 0;
     }
 
     .website-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(111,176,255,0.1);
-      color: var(--accent);
-      padding: 10px 16px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      border: 1px solid rgba(111,176,255,0.2);
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--accent); text-decoration: none; font-size: 0.85rem; font-weight: 600;
     }
+    .website-link:hover { text-decoration: underline; }
+    .website-link i { font-size: 0.72rem; }
 
-    .website-link:hover {
-      background: rgba(111,176,255,0.15);
-      border-color: rgba(111,176,255,0.4);
-      transform: translateY(-1px);
-    }
-
-    .website-link i {
-      font-size: 0.8rem;
-    }
-
-    /* 반응형 */
+    /* ===================== 반응형 ===================== */
     @media (max-width: 768px) {
-      .sidebar {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-      }
-
-      .sidebar.open {
-        transform: translateX(0);
-      }
-
-      .main-content {
-        margin-left: 0;
-      }
-
-      .hero-title {
-        font-size: 2.5rem;
-      }
-
-      .content-section {
-        padding: 30px 20px;
-      }
-
-      .dday-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .product-content {
-        grid-template-columns: 1fr;
-      }
-
-      .product-image {
-        height: 200px;
-      }
-
-      .spec-list {
-        grid-template-columns: 1fr;
-      }
-
-      .website-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .anime-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-      }
+      .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .page-header { flex-direction: column; padding: 76px 24px 24px; }
+      .content-section { padding: 0 24px 60px; }
+      .dday-row { flex-direction: column; }
+      .dday-block { border-left: none; border-top: 1px solid var(--border); }
+      .dday-block:first-child { border-top: none; }
 
       .mobile-menu-btn {
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        z-index: 1001;
-        width: 50px;
-        height: 50px;
-        background: rgba(20,20,20,0.95);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--accent);
-        font-size: 20px;
-        cursor: pointer;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        position: fixed; top: 16px; left: 16px; z-index: 1001;
+        width: 40px; height: 40px; background: var(--surface);
+        border: 1px solid var(--border); border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text); font-size: 16px; cursor: pointer;
       }
     }
 
-    @media (min-width: 769px) {
-      .mobile-menu-btn {
-        display: none;
-      }
-    }
-
-    /* 스크롤바 스타일링 */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: var(--bg);
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: rgba(111,176,255,0.3);
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(111,176,255,0.5);
-    }
-
-    /* 최근 본 애니 섹션 */
-      .anime-section {
-        margin-bottom: 80px;
-    }
-
-      .anime-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 30px;
-    }
-
-      .anime-card {
-        background: linear-gradient(135deg, rgba(25,25,25,0.95), rgba(35,35,35,0.9));
-        border-radius: 16px;
-        overflow: visible;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        text-align: center;
-    }
-
-      .anime-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 45px rgba(0,0,0,0.8);
-    }
-
-     .anime-card img {
-        width: 100%;
-        height: auto;
-        max-height: 300px;
-        object-fit: contain;
-        display: block;
-    }
-
-      .anime-title {
-        margin: 12px 0 1px;
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--accent);
-    }
-
-      .anime-content {
-        padding: 0 10px 10px 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-      .anime-description {
-        font-size: 0.85rem;
-        color: var(--muted);
-        line-height: 1.4;
-        text-align: left;
-        display: -webkit-box;
-        -webkit-line-clamp: 6;
-        line-clamp: 6;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-      
-      .anime-genre {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin: 2px 0;
-    }
-
-      .genre-tag {
-        font-size: 0.75rem;
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-    }
-
-    /* 미리 정의된 장르 색상들 */
-      .genre-horror { background: rgba(220, 53, 69, 0.2); color: #dc3545; }
-      .genre-comedy { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
-      .genre-scifi { background: rgba(111, 176, 255, 0.2); color: var(--accent); }
-      .genre-drama { background: rgba(108, 117, 125, 0.2); color: #6c757d; }
-      .genre-action { background: rgba(220, 53, 69, 0.2); color: #dc3545; }
-      .genre-slice { background: rgba(40, 167, 69, 0.2); color: #28a745; }
-      .genre-suspense { background: rgba(102, 16, 242, 0.2); color: #6610f2; }
-      .genre-mystery { background: rgba(23, 162, 184, 0.2); color: #17a2b8; }
-      .genre-school { background: rgba(0, 255, 0, 0.2); color: #00ff00; }
-      .genre-tragic { background: rgba(220, 53, 69, 0.2); color: #dc3545; }
-      .genre-fantasy { background: rgba(255, 51, 153, 0.2); color: #ff3399; }
-      .genre-adventure { background: rgba(255, 204, 0, 0.2); color: #ffcc00; }
-
-/* 경고 아이콘 툴팁 */
-.warning-icon {
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:25px;
-  height:25px;
-  margin-left:6px;
-  position:relative;
-  color:#dc3545;
-  cursor:pointer;
-}
-
-.warning-icon i{
-  font-size:1.5rem;
-  will-change: filter;
-  animation: glowPulse 1.8s infinite;
-}
-
-/* 부드러운 빛 확산 */
-@keyframes glowPulse {
-  0% {
-    filter: drop-shadow(0 0 0px rgba(255, 0, 0, 0.0));
-  }
-  50% {
-    filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.8));
-  }
-  100% {
-    filter: drop-shadow(0 0 0px rgba(255, 0, 0, 0.0));
-  }
-}
-
-.warning-tooltip {
-  position: absolute;
-  bottom: calc(100% + 10px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, rgba(30,30,30,0.98), rgba(40,40,40,0.95));
-  border: 1px solid rgba(220, 53, 69, 0.4);
-  border-radius: 8px;
-  padding: 12px 15px;
-  min-width: 250px;
-  max-width: 300px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.8);
-  z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-  pointer-events: none;
-}
-
-.warning-tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: rgba(30,30,30,0.98);
-}
-
-.warning-icon:hover .warning-tooltip,
-.warning-icon:active .warning-tooltip {
-  opacity: 1;
-  visibility: visible;
-}
-
-.warning-tooltip-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #dc3545;
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.warning-tooltip-title i {
-  font-size: 0.9rem;
-}
-
-.warning-tooltip-description {
-  color: #ff6b6b;
-  font-size: 0.8rem;
-  font-weight: 500;
-  line-height: 1.4;
-}
-
+    @media (min-width: 769px) { .mobile-menu-btn { display: none; } }
   </style>
 </head>
 <body>
@@ -1016,48 +260,42 @@
 
   <!-- 메인 컨텐츠 -->
   <main class="main-content">
-    <!-- 히어로 배너 -->
-    <section class="hero-banner">
-      <div class="hero-content">
-        <h1 class="hero-title">잡동사니</h1>
-        <p class="hero-subtitle">보고 싶은 사람만 보는 자잘한 정보들</p>
-        <div class="hero-socials">
-          <a href="https://github.com/OrangeBlue2336" title="GitHub" target="_blank"><i class="fab fa-github"></i></a>
-          <a href="https://tinyurl.com/2hp2z645" title="YouTube" target="_blank"><i class="fab fa-youtube"></i></a>
-          <a href="https://steamcommunity.com/profiles/76561199467922060" title="Steam" target="_blank"><i class="fab fa-steam"></i></a>
-          <a href="discord://-/users/1143199445035536404" title="Discord"><i class="fab fa-discord"></i></a>
-        </div>
+    <!-- 상단 헤더 -->
+    <div class="page-header">
+      <div class="page-header-text">
+        <h1>잡동사니</h1>
+        <p>보고 싶은 사람만 보는 자잘한 정보들</p>
       </div>
-    </section>
+      <div class="page-header-actions">
+        <button class="icon-btn theme-toggle" onclick="toggleTheme()" title="테마 전환" aria-label="다크/라이트 모드 전환">
+          <i class="fas fa-moon"></i>
+          <i class="fas fa-sun"></i>
+        </button>
+      </div>
+    </div>
 
     <!-- 컨텐츠 섹션 -->
     <section class="content-section">
       <!-- D-Day 섹션 -->
       <div class="dday-section">
         <h2 class="section-title">중요한 날들</h2>
-        <div class="dday-grid">
-          <div class="dday-card">
-            <div class="dday-icon">
-              <i class="fas fa-pencil-alt"></i>
-            </div>
+        <div class="dday-row">
+          <div class="dday-block">
+            <div class="dday-icon"><i class="fas fa-pencil-alt"></i></div>
             <div class="dday-title">수능까지</div>
             <div class="dday-counter" id="suneung-counter">D-365</div>
             <div class="dday-date">2026.11.19</div>
           </div>
 
-          <div class="dday-card">
-            <div class="dday-icon">
-              <i class="fas fa-birthday-cake"></i>
-            </div>
+          <div class="dday-block">
+            <div class="dday-icon"><i class="fas fa-birthday-cake"></i></div>
             <div class="dday-title">생일까지</div>
             <div class="dday-counter" id="birthday-counter">D-120</div>
             <div class="dday-date" id="birthday-date">2026.01.22</div>
           </div>
 
-          <div class="dday-card">
-            <div class="dday-icon">
-              <i class="fas fa-graduation-cap"></i>
-            </div>
+          <div class="dday-block">
+            <div class="dday-icon"><i class="fas fa-graduation-cap"></i></div>
             <div class="dday-title">졸업까지</div>
             <div class="dday-counter" id="graduation-counter">D-400</div>
             <div class="dday-date">2027.01.07</div>
@@ -1065,231 +303,38 @@
         </div>
       </div>
 
-      <!-- 제품 스펙 섹션 -->
-      <div class="specs-section">
-        <h2 class="section-title">내 장비들</h2>
-        
-        <!-- 노트북 -->
-        <div class="product-card">
-          <div class="product-content">
-            <div class="product-image">
-              <img src="images/laptop.jpg" alt="노트북" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-              <div class="product-placeholder" style="display: none;">
-                <i class="fas fa-laptop"></i>
-              </div>
-            </div>
-            <div class="product-specs">
-              <h3 class="product-name">
-                <i class="fas fa-laptop"></i>
-                내 노트북
-              </h3>
-              <div class="spec-list">
-                <div class="spec-item">
-                  <div class="spec-label">프로세서</div>
-                  <div class="spec-value">Intel i5-1340P</div>
-                </div>
-                <div class="spec-item">
-                  <div class="spec-label">메모리</div>
-                  <div class="spec-value">16GB LPDDR4X</div>
-                </div>
-                <div class="spec-item">
-                  <div class="spec-label">그래픽카드</div>
-                  <div class="spec-value">Intel Iris Xe</div>
-                </div>
-                <div class="spec-item">
-                  <div class="spec-label">저장장치</div>
-                  <div class="spec-value">256GB NVMe SSD</div>
-                </div>
-                <div class="spec-item">
-                  <div class="spec-label">디스플레이</div>
-                  <div class="spec-value">15" FHD 60Hz</div>
-                </div>
-                <div class="spec-item">
-                  <div class="spec-label">운영체제</div>
-                  <div class="spec-value">Windows 11 Home</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 드론 -->
-        <div class="product-card">
-          <div class="product-content">
-            <div class="product-image">
-              <img src="images/drone.jpg" alt="드론" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-              <div class="product-placeholder" style="display: none;">
-                <i class="fas fa-helicopter"></i>
-              </div>
-            </div>
-            <div class="product-specs">
-              <h3 class="product-name">
-                <i class="fas fa-helicopter"></i>
-                내 드론
-              </h3>
-              <div class="spec-list">
-                <div class="spec-item">
-                  <div class="spec-label">모델명</div>
-                  <div class="spec-value">DJI Air 3S</div>
-                </div>
-                <div class="spec-item">
-                  <div class="spec-label">카메라</div>
-                  <div class="spec-value">광각: 16mm(1”) CMOS, 50MP<br>망원: 12mm(1/1.3”) CMOS, 48MP</div>
-                </div>
-                <div class="spec-item">
-                  <div class="spec-label">짐벌</div>
-                  <div class="spec-value">3축 전동식</div>
-                </div>
-                <div class="spec-item">
-                  <div class="spec-label">비행시간</div>
-                  <div class="spec-value">최대 45분</div>
-                </div>
-                <div class="spec-item">
-                  <div class="spec-label">최대거리</div>
-                  <div class="spec-value">20km</div>
-                </div>
-                <div class="spec-item">
-                  <div class="spec-label">무게</div>
-                  <div class="spec-value">724g</div>
-                </div>
-                <div class="spec-item">
-                  <div class="spec-label">자격증</div>
-                  <div class="spec-value cert-link" onclick="openCertModal()">초경량비행장치조종자 4종</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- 웹사이트 섹션 -->
       <div class="websites-section">
         <h2 class="section-title">개발한 웹사이트</h2>
-        <div class="website-grid">
-          <div class="website-card">
-            <div class="website-header">
-              <div class="website-icon">
-                <i class="fas fa-flag"></i>
-              </div>
-              <h3 class="website-title">Wcam 봇 대시보드</h3>
-            </div>
-            <p class="website-description">
-              본래 Wplace의 주요 지점 감시기 였지만, Wcam 봇을 개발한 후, 봇의 대시보드로 개편한 웹사이트입니다. 봇이 30초 마다 자동으로 사진을 업데이트하며, 실시간으로 Wplace의 태극기 상황을 감시할 수 있습니다.
-            </p>
-            <a href="https://orangeblue2336.github.io/wplace/" target="_blank" class="website-link">
-              사이트 방문하기
-              <i class="fas fa-external-link-alt"></i>
-            </a>
-          </div>
 
-          <div class="website-card">
-            <div class="website-header">
-              <div class="website-icon">
-                <i class="fas fa-globe"></i>
-              </div>
-              <h3 class="website-title">Wplace 맞춤 지점 감시기</h3>
-            </div>
-            <p class="website-description">
-              두 번째로 개발한 웹사이트입니다. 이 역시 AI를 이용했으며, Wplace에서 직접 타일, 픽셀 좌표, 확대 비율 등을 입력하여 자신의 작품들을 감시할 수 있습니다.
-            </p>
-            <a href="https://orangeblue2336.github.io/wplace/custom" target="_blank" class="website-link">
-              사이트 방문하기
-              <i class="fas fa-external-link-alt"></i>
-            </a>
+        <div class="website-item">
+          <div class="website-header">
+            <i class="fas fa-flag website-icon"></i>
+            <h3 class="website-title">Wcam 봇 대시보드</h3>
           </div>
+          <p class="website-description">
+            본래 Wplace의 주요 지점 감시기 였지만, Wcam 봇을 개발한 후, 봇의 대시보드로 개편한 웹사이트입니다. 봇이 30초 마다 자동으로 사진을 업데이트하며, 실시간으로 Wplace의 태극기 상황을 감시할 수 있습니다.
+          </p>
+          <a href="https://orangeblue2336.github.io/wplace/" target="_blank" class="website-link">
+            사이트 방문하기 <i class="fas fa-external-link-alt"></i>
+          </a>
+        </div>
+
+        <div class="website-item">
+          <div class="website-header">
+            <i class="fas fa-globe website-icon"></i>
+            <h3 class="website-title">Wplace 맞춤 지점 감시기</h3>
+          </div>
+          <p class="website-description">
+            두 번째로 개발한 웹사이트입니다. 이 역시 AI를 이용했으며, Wplace에서 직접 타일, 픽셀 좌표, 확대 비율 등을 입력하여 자신의 작품들을 감시할 수 있습니다.
+          </p>
+          <a href="https://orangeblue2336.github.io/wplace/custom" target="_blank" class="website-link">
+            사이트 방문하기 <i class="fas fa-external-link-alt"></i>
+          </a>
         </div>
       </div>
-      <!-- 최근 본 애니 섹션 -->
-      <div class="anime-section">
-         <h2 class="section-title">최근 본 애니</h2>
-         <div class="anime-grid">
-            <div class="anime-card">
-              <img src="images/anime1.gif" alt="쓰르라미">
-              <div class="anime-content">
-                <h3 class="anime-title">쓰르라미 울 적에 전 시리즈</h3>                <div class="anime-genre">
-                  <span class="genre-tag genre-horror">호러</span>
-                  <span class="genre-tag genre-mystery">미스터리</span>
-                  <span class="genre-tag genre-suspense">서스펜스</span>
-                  <span class="warning-icon">
-    <i class="fas fa-exclamation-triangle"></i>
-    <div class="warning-tooltip">
-      <div class="warning-tooltip-title">
-        <i class="fas fa-exclamation-triangle"></i>
-        시청에 주의 필요
-      </div>
-      <div class="warning-tooltip-description">
-        폭력적이고 잔인한 장면 포함<br>
-        일부 시리즈 선정적인 장면 포함
-      </div>
-    </div>
-  </span>
- </div>
-                <p class="anime-description">조용한 시골 마을 히나미자와로 전학 온 주인공 케이이치는 새로운 친구들과 평화로운 일상을 보내기 시작한다. 하지만 매년 열리는 축제 날이 다가올수록 사람이 죽고 사라지는 이상한 사건들이 반복되며, 마을의 금기와 비밀들이 서서히 드러나기 시작한다.</p>
-              </div>
-                 </div>
-            <div class="anime-card">
-              <img src="images/anime2.png" alt="타코피">
-              <div class="anime-content">
-                <h3 class="anime-title">타코피의 원죄</h3>                
-                <div class="anime-genre">
-                  <span class="genre-tag genre-school">학원</span>
-                  <span class="genre-tag genre-scifi">SF</span>
-                  <span class="genre-tag genre-tragic">피폐</span>
-                  <span class="genre-tag genre-suspense">서스펜스</span>
-                  <span class="warning-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <div class="warning-tooltip">
-                      <div class="warning-tooltip-title">
-       <i class="fas fa-exclamation-triangle"></i>
-        시청에 주의 필요
-      </div>
-      <div class="warning-tooltip-description">
-        우울, 자살, 학교폭력 등 민감한 내용 포함
-      </div>
-    </div>
-  </span>  
-</div>
-                <p class="anime-description">행복을 전파하기 위해 지구에 온 해피 성인 타코피는 웃지 않는 소녀 시즈카를 만나 그녀의 미소를 되찾기 위해 여러 해피 도구를 사용해 본다. 하지만 시즈카의 가정 문제, 학교에서의 괴롭힘 등 현실의 어두운 면이 복합적으로 작용하면서 행복을 만드는 일이 생각만큼 단순하지 않음을 깨닫는다.</p>
-              </div>
-                  </div>
-            <div class="anime-card">
-              <img src="images/anime3.gif" alt="일하는 세포">
-              <div class="anime-content">
-                <h3 class="anime-title">일하는 세포 1기, 2기</h3>
-                <div class="anime-genre">
-                  <span class="genre-tag genre-fantasy">판타지</span>
-                  <span class="genre-tag genre-action">액션</span>
-                  <span class="genre-tag genre-adventure">어드벤처</span>
-                </div>
-                <p class="anime-description">우리 몸속의 세포들이 의인화되어 적혈구, 백혈구 등 다양한 세포들이 서로 협력하거나 갈등하면서 인체 내 방어, 산소 운반, 감염 대응 등의 일을 수행하는 이야기. 평소엔 당연하게 지나치는 몸 안의 작은 전쟁과 조화가 살아 움직이는 모습을 보여준다.</p>
-          </div>
-        </div>
     </section>
   </main>
-
-  <!-- 자격증 모달 -->
-  <div id="certModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title">초경량비행장치조종자 4종 자격증</h3>
-        <button class="close-btn" onclick="closeCertModal()">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div class="cert-image">
-        <img src="images/drone-certificate.jpg" alt="드론 자격증" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-        <div class="cert-placeholder" style="display: none;">
-          <i class="fas fa-certificate"></i>
-          <div style="font-size: 1rem; margin-top: 10px; color: rgba(111,176,255,0.6);">
-            자격증 이미지 플레이스홀더
-          </div>
-        </div>
-      </div>
-      <div class="cert-info">
-        한국교통안전공단에서 발급한 초경량비행장치조종자 4종 자격증입니다.
-      </div>
-    </div>
-  </div>
 
   <script>
     function toggleSidebar() {
@@ -1297,99 +342,55 @@
       sidebar.classList.toggle('open');
     }
 
-    // 사이드바 외부 클릭시 닫기
     document.addEventListener('click', function(e) {
       const sidebar = document.getElementById('sidebar');
       const menuBtn = document.querySelector('.mobile-menu-btn');
-      
       if (window.innerWidth <= 768 && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
         sidebar.classList.remove('open');
       }
     });
 
+    // 다크/라이트 모드 토글 (index.html과 동일한 저장 키 공유)
+    function toggleTheme() {
+      const root = document.documentElement;
+      const current = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('ob_theme', next); } catch (e) {}
+    }
+
     // D-Day 카운터 업데이트 함수
     function updateDDayCounters() {
       const today = new Date();
-      
-      // 수능 (2026.11.19)
+
       const suneungDate = new Date('2026-11-19');
       const suneungDiff = Math.ceil((suneungDate - today) / (1000 * 60 * 60 * 24));
-      document.getElementById('suneung-counter').textContent = 
+      document.getElementById('suneung-counter').textContent =
         suneungDiff > 0 ? `D-${suneungDiff}` : suneungDiff === 0 ? 'D-Day' : `D+${Math.abs(suneungDiff)}`;
 
-      // 생일 (매년 1월 22일 - 자동 갱신)
       const currentYear = today.getFullYear();
-      let birthdayThisYear = new Date(currentYear, 0, 22); // 1월은 0부터 시작
-      
-      // 올해 생일이 지났으면 내년 생일로 설정
+      let birthdayThisYear = new Date(currentYear, 0, 22);
       if (today > birthdayThisYear) {
         birthdayThisYear = new Date(currentYear + 1, 0, 22);
       }
-      
       const birthdayDiff = Math.ceil((birthdayThisYear - today) / (1000 * 60 * 60 * 24));
-      document.getElementById('birthday-counter').textContent = 
+      document.getElementById('birthday-counter').textContent =
         birthdayDiff > 0 ? `D-${birthdayDiff}` : birthdayDiff === 0 ? 'D-Day' : 'D-Day';
-      
-      // 생일 날짜 표시 업데이트
+
       const birthdayYear = birthdayThisYear.getFullYear();
       document.getElementById('birthday-date').textContent = `${birthdayYear}.01.22`;
 
-      // 졸업 (2027.01.07)
       const graduationDate = new Date('2027-01-07');
       const graduationDiff = Math.ceil((graduationDate - today) / (1000 * 60 * 60 * 24));
-      document.getElementById('graduation-counter').textContent = 
+      document.getElementById('graduation-counter').textContent =
         graduationDiff > 0 ? `D-${graduationDiff}` : graduationDiff === 0 ? 'D-Day' : `D+${Math.abs(graduationDiff)}`;
     }
 
-    // 페이지 로드시 D-Day 업데이트
     document.addEventListener('DOMContentLoaded', function() {
       updateDDayCounters();
     });
 
-    // 매일 자정에 D-Day 업데이트 (선택사항)
     setInterval(updateDDayCounters, 24 * 60 * 60 * 1000);
-        
-              
-    // 자격증 모달 열기 (부드러운 애니메이션)
-    function openCertModal() {
-      const modal = document.getElementById('certModal');
-      modal.style.display = 'block';
-      document.body.style.overflow = 'hidden'; // 배경 스크롤 방지
-      
-      // 애니메이션을 위해 약간의 지연 후 show 클래스 추가
-      setTimeout(() => {
-        modal.classList.add('show');
-      }, 10);
-    }
-
-    // 자격증 모달 닫기 (부드러운 애니메이션)
-    function closeCertModal() {
-      const modal = document.getElementById('certModal');
-      modal.classList.remove('show');
-      
-      // 애니메이션 완료 후 모달 숨기기
-      setTimeout(() => {
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-      }, 300);
-    }
-
-    // 모달 외부 클릭시 닫기
-    window.onclick = function(event) {
-      const modal = document.getElementById('certModal');
-      if (event.target === modal) {
-        closeCertModal();
-      }
-    }
-
-    // ESC 키로 모달 닫기
-    document.addEventListener('keydown', function(event) {
-      if (event.key === 'Escape') {
-        const modal = document.getElementById('certModal');
-        if (modal.classList.contains('show')) {
-          closeCertModal();
-        }
-      }
-    });
   </script>
 </body>
+</html>
