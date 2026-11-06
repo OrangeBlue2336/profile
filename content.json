@@ -1,0 +1,63 @@
+{
+  "portfolio": {
+    "experienceYears": 2,
+    "experiences": [
+      {
+        "server": "Geometry Dash",
+        "category": "공식 커뮤니티",
+        "categoryStyle": "community",
+        "period": "2026.02.11 - 현재",
+        "memberCount": 2260000
+      },
+      {
+        "server": "/r/DDLC Discord",
+        "category": "커뮤니티",
+        "categoryStyle": "community",
+        "period": "2025.05.04 - 현재",
+        "memberCount": 148000
+      },
+      {
+        "server": "DDLC Hangout",
+        "category": "커뮤니티",
+        "categoryStyle": "community",
+        "period": "2025.01.07 - 현재",
+        "memberCount": 5000
+      },
+      {
+        "server": "DUCK",
+        "category": "친목",
+        "categoryStyle": "friendly",
+        "period": "2025.05.10 - 현재",
+        "memberCount": 30
+      },
+      {
+        "server": "Nerd",
+        "category": "친목",
+        "categoryStyle": "friendly",
+        "period": "2024.04.24 - 현재",
+        "memberCount": 30
+      }
+    ]
+  },
+  "misc": {
+    "ddays": [
+      {
+        "title": "수능까지",
+        "date": "2026-11-19",
+        "icon": "fa-pencil-alt"
+      },
+      {
+        "title": "생일까지",
+        "recurring": true,
+        "month": 1,
+        "day": 22,
+        "icon": "fa-birthday-cake"
+      },
+      {
+        "title": "졸업까지",
+        "date": "2027-01-08",
+        "icon": "fa-graduation-cap"
+      }
+    ]
+  }
+}

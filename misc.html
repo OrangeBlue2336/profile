@@ -232,7 +232,7 @@
     <div class="profile-section">
       <img src="images/profile.jpg" alt="프로필 사진" class="profile-img">
       <h1 class="profile-name">OrangeBlue</h1>
-      <p class="profile-title">더 궁금한게 있으면<br>디스코드 DM으로 오세요!</p>
+      <p class="profile-title">더 궁금한게 있으면<br>디스코드 DM으로 오세요</p>
     </div>
 
     <nav class="nav-menu">
@@ -279,28 +279,7 @@
       <!-- D-Day 섹션 -->
       <div class="dday-section">
         <h2 class="section-title">중요한 날들</h2>
-        <div class="dday-row">
-          <div class="dday-block">
-            <div class="dday-icon"><i class="fas fa-pencil-alt"></i></div>
-            <div class="dday-title">수능까지</div>
-            <div class="dday-counter" id="suneung-counter">D-365</div>
-            <div class="dday-date">2026.11.19</div>
-          </div>
-
-          <div class="dday-block">
-            <div class="dday-icon"><i class="fas fa-birthday-cake"></i></div>
-            <div class="dday-title">생일까지</div>
-            <div class="dday-counter" id="birthday-counter">D-120</div>
-            <div class="dday-date" id="birthday-date">2026.01.22</div>
-          </div>
-
-          <div class="dday-block">
-            <div class="dday-icon"><i class="fas fa-graduation-cap"></i></div>
-            <div class="dday-title">졸업까지</div>
-            <div class="dday-counter" id="graduation-counter">D-400</div>
-            <div class="dday-date">2027.01.07</div>
-          </div>
-        </div>
+        <div class="dday-row" id="dday-list"></div>
       </div>
 
       <!-- 웹사이트 섹션 -->
@@ -359,38 +338,77 @@
       try { localStorage.setItem('ob_theme', next); } catch (e) {}
     }
 
-    // D-Day 카운터 업데이트 함수
-    function updateDDayCounters() {
-      const today = new Date();
+    const KOREA_TIME_ZONE = 'Asia/Seoul';
 
-      const suneungDate = new Date('2026-11-19');
-      const suneungDiff = Math.ceil((suneungDate - today) / (1000 * 60 * 60 * 24));
-      document.getElementById('suneung-counter').textContent =
-        suneungDiff > 0 ? `D-${suneungDiff}` : suneungDiff === 0 ? 'D-Day' : `D+${Math.abs(suneungDiff)}`;
-
-      const currentYear = today.getFullYear();
-      let birthdayThisYear = new Date(currentYear, 0, 22);
-      if (today > birthdayThisYear) {
-        birthdayThisYear = new Date(currentYear + 1, 0, 22);
-      }
-      const birthdayDiff = Math.ceil((birthdayThisYear - today) / (1000 * 60 * 60 * 24));
-      document.getElementById('birthday-counter').textContent =
-        birthdayDiff > 0 ? `D-${birthdayDiff}` : birthdayDiff === 0 ? 'D-Day' : 'D-Day';
-
-      const birthdayYear = birthdayThisYear.getFullYear();
-      document.getElementById('birthday-date').textContent = `${birthdayYear}.01.22`;
-
-      const graduationDate = new Date('2027-01-07');
-      const graduationDiff = Math.ceil((graduationDate - today) / (1000 * 60 * 60 * 24));
-      document.getElementById('graduation-counter').textContent =
-        graduationDiff > 0 ? `D-${graduationDiff}` : graduationDiff === 0 ? 'D-Day' : `D+${Math.abs(graduationDiff)}`;
+    function koreanDateParts() {
+      const values = new Intl.DateTimeFormat('en-CA', {
+        timeZone: KOREA_TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit'
+      }).formatToParts(new Date());
+      return Object.fromEntries(values.filter(({ type }) => type !== 'literal').map(({ type, value }) => [type, Number(value)]));
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-      updateDDayCounters();
-    });
+    function utcDayNumber(year, month, day) {
+      return Math.floor(Date.UTC(year, month - 1, day) / 86400000);
+    }
 
-    setInterval(updateDDayCounters, 24 * 60 * 60 * 1000);
+    function targetDate(item, today) {
+      if (item.recurring) {
+        let year = today.year;
+        if (utcDayNumber(year, item.month, item.day) < utcDayNumber(today.year, today.month, today.day)) year += 1;
+        return { year, month: item.month, day: item.day };
+      }
+      const [year, month, day] = String(item.date).split('-').map(Number);
+      return { year, month, day };
+    }
+
+    function formatDDay(diff) {
+      return diff > 0 ? `D-${diff}` : diff === 0 ? 'D-Day' : `D+${Math.abs(diff)}`;
+    }
+
+    function renderDDays(items) {
+      const list = document.getElementById('dday-list');
+      const today = koreanDateParts();
+      list.replaceChildren();
+
+      items.forEach((item) => {
+        const target = targetDate(item, today);
+        const diff = utcDayNumber(target.year, target.month, target.day) - utcDayNumber(today.year, today.month, today.day);
+        const block = document.createElement('div');
+        block.className = 'dday-block';
+        const icon = document.createElement('div');
+        icon.className = 'dday-icon';
+        const iconElement = document.createElement('i');
+        iconElement.className = `fas ${item.icon || 'fa-calendar-day'}`;
+        icon.appendChild(iconElement);
+        const title = document.createElement('div');
+        title.className = 'dday-title';
+        title.textContent = item.title || '';
+        const counter = document.createElement('div');
+        counter.className = 'dday-counter';
+        counter.textContent = formatDDay(diff);
+        const date = document.createElement('div');
+        date.className = 'dday-date';
+        date.textContent = `${target.year}.${String(target.month).padStart(2, '0')}.${String(target.day).padStart(2, '0')}`;
+        block.append(icon, title, counter, date);
+        list.appendChild(block);
+      });
+    }
+
+    async function loadDDays() {
+      try {
+        const response = await fetch('content.json');
+        if (!response.ok) throw new Error('content.json을 불러올 수 없습니다.');
+        const { misc } = await response.json();
+        const items = Array.isArray(misc.ddays) ? misc.ddays : [];
+        renderDDays(items);
+        setInterval(() => renderDDays(items), 60 * 1000);
+      } catch (error) {
+        console.error(error);
+        document.getElementById('dday-list').textContent = 'D-day 정보를 불러오지 못했습니다.';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadDDays);
   </script>
 </body>
 </html>

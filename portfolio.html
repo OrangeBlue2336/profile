@@ -260,7 +260,7 @@
 <div class="profile-section">
 <img alt="프로필 사진" class="profile-img" src="images/profile.jpg"/>
 <h1 class="profile-name">OrangeBlue</h1>
-<p class="profile-title">더 궁금한게 있으면<br>디스코드 DM으로 오세요!</p>
+<p class="profile-title">더 궁금한게 있으면<br>디스코드 DM으로 오세요</p>
 </div>
 <nav class="nav-menu">
       <a href="index.html" class="nav-item">
@@ -307,15 +307,15 @@
       <h2 class="section-title">관리 경험 통계</h2>
       <div class="stats-row">
         <div class="stat-block">
-          <div class="stat-number" data-target="5">0</div>
+          <div class="stat-number" id="server-count">-</div>
           <div class="stat-label">관리 서버 수</div>
         </div>
         <div class="stat-block">
-          <div class="stat-number" data-target="1680000">0</div>
+          <div class="stat-number" id="member-count">-</div>
           <div class="stat-label">관리 인원 합계</div>
         </div>
         <div class="stat-block">
-          <div class="stat-number" data-target="1">0</div>
+          <div class="stat-number" id="experience-years">-</div>
           <div class="stat-label">년간 경험</div>
         </div>
       </div>
@@ -333,38 +333,7 @@
             <th class="col-scale">규모</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td class="col-server">Geometry Dash</td>
-            <td class="col-category community">공식 커뮤니티</td>
-            <td class="col-period">2026.02.11 - 현재</td>
-            <td class="col-scale">1,600,000+</td>
-          </tr>
-          <tr>
-            <td class="col-server">/r/DDLC Discord</td>
-            <td class="col-category community">커뮤니티</td>
-            <td class="col-period">2025.05.04 - 현재</td>
-            <td class="col-scale">83,000+</td>
-          </tr>
-          <tr>
-            <td class="col-server">DDLC Hangout</td>
-            <td class="col-category community">커뮤니티</td>
-            <td class="col-period">2025.01.07 - 현재</td>
-            <td class="col-scale">5,000+</td>
-          </tr>
-          <tr>
-            <td class="col-server">DUCK</td>
-            <td class="col-category friendly">친목</td>
-            <td class="col-period">2025.05.10 - 현재</td>
-            <td class="col-scale">30+</td>
-          </tr>
-          <tr>
-            <td class="col-server">Nerd</td>
-            <td class="col-category friendly">친목</td>
-            <td class="col-period">2024.04.24 - 현재</td>
-            <td class="col-scale">30+</td>
-          </tr>
-        </tbody>
+        <tbody id="experience-list"></tbody>
       </table>
     </div>
   </section>
@@ -393,27 +362,56 @@
       try { localStorage.setItem('ob_theme', next); } catch (e) {}
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const counters = document.querySelectorAll(".stat-number");
-      const duration = 1200;
+    function animateNumber(element, target, suffix = '') {
+      const startedAt = performance.now();
+      const duration = 800;
+      const render = (now) => {
+        const progress = Math.min((now - startedAt) / duration, 1);
+        element.textContent = Math.floor(target * progress).toLocaleString() + suffix;
+        if (progress < 1) requestAnimationFrame(render);
+      };
+      requestAnimationFrame(render);
+    }
 
-      counters.forEach(counter => {
-        const target = +counter.getAttribute("data-target");
-        const increment = target / (duration / 16);
+    function createCell(className, value) {
+      const cell = document.createElement('td');
+      cell.className = className;
+      cell.textContent = value;
+      return cell;
+    }
 
-        let current = 0;
-        const update = () => {
-          current += increment;
-          if (current < target) {
-            counter.textContent = Math.floor(current) + (target > 1000 ? "+" : "");
-            requestAnimationFrame(update);
-          } else {
-            counter.textContent = target.toLocaleString() + "+";
-          }
-        };
-        update();
-      });
-    });
+    async function loadPortfolio() {
+      try {
+        const response = await fetch('content.json');
+        if (!response.ok) throw new Error('content.json을 불러올 수 없습니다.');
+        const { portfolio } = await response.json();
+        const experiences = Array.isArray(portfolio.experiences) ? portfolio.experiences : [];
+        const list = document.getElementById('experience-list');
+
+        experiences.forEach((experience) => {
+          const row = document.createElement('tr');
+          row.append(
+            createCell('col-server', experience.server || ''),
+            createCell(`col-category ${experience.categoryStyle || ''}`, experience.category || ''),
+            createCell('col-period', experience.period || ''),
+            createCell('col-scale', `${Number(experience.memberCount || 0).toLocaleString()}+`)
+          );
+          list.appendChild(row);
+        });
+
+        const exactTotal = experiences.reduce((total, item) => total + Math.max(0, Number(item.memberCount) || 0), 0);
+        // 합계는 경력 상세의 memberCount로 계산하고, 마지막 세 자리는 000으로 고정합니다.
+        const roundedTotal = Math.floor(exactTotal / 1000) * 1000;
+        animateNumber(document.getElementById('server-count'), experiences.length);
+        animateNumber(document.getElementById('member-count'), roundedTotal, '+');
+        animateNumber(document.getElementById('experience-years'), Math.max(0, Number(portfolio.experienceYears) || 0));
+      } catch (error) {
+        console.error(error);
+        document.getElementById('experience-list').innerHTML = '<tr><td colspan="4">경력 정보를 불러오지 못했습니다.</td></tr>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadPortfolio);
 </script>
 </body>
 </html>
